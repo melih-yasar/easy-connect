@@ -1,0 +1,67 @@
+<UserControl x:Class="EasyConnect.Views.DeviceCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:EasyConnect.Models"
+             Focusable="False">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="100" />
+        </Grid.ColumnDefinitions>
+        <Border Width="48" Height="48" CornerRadius="14" Background="{DynamicResource IconBackgroundBrush}" Margin="0,0,16,0">
+            <TextBlock Text="{Binding Category, Converter={StaticResource DeviceIcon}}"
+                       FontFamily="Segoe MDL2 Assets" FontSize="24" Foreground="{DynamicResource SecondaryTextBrush}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Border>
+        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,12,0">
+            <TextBlock Text="{Binding DeviceName}" FontWeight="SemiBold" FontSize="16" TextTrimming="CharacterEllipsis"
+                       ToolTip="{Binding DeviceName}" />
+            <Border CornerRadius="12" Padding="8,4" Margin="0,7,0,0" HorizontalAlignment="Left">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="{DynamicResource IconBackgroundBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ConnectionStatus}" Value="{x:Static models:DeviceConnectionStatus.Connected}">
+                                <Setter Property="Background" Value="{DynamicResource ConnectedSoftBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel Orientation="Horizontal">
+                <Ellipse Width="6" Height="6" Margin="0,0,7,0">
+                    <Ellipse.Style>
+                        <Style TargetType="Ellipse">
+                            <Setter Property="Fill" Value="{DynamicResource SecondaryTextBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ConnectionStatus}" Value="{x:Static models:DeviceConnectionStatus.Connected}">
+                                    <Setter Property="Fill" Value="{DynamicResource ConnectedBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Ellipse.Style>
+                </Ellipse>
+                <TextBlock Text="{Binding ConnectionStatus, Converter={StaticResource ConnectionText}}" FontSize="12">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ConnectionStatus}" Value="{x:Static models:DeviceConnectionStatus.Connected}">
+                                    <Setter Property="Foreground" Value="{DynamicResource ConnectedBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+        <StackPanel Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
+                    ToolTip="Battery last reported by Windows; it may be unavailable or out of date.">
+            <TextBlock Text="{Binding BatteryPercentage, Converter={StaticResource BatteryText}}"
+                       FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Right"
+                       AutomationProperties.Name="Battery percentage" />
+            <TextBlock Text="Battery" Style="{StaticResource SecondaryText}" FontSize="12" HorizontalAlignment="Right" Margin="0,3,0,0" />
+        </StackPanel>
+    </Grid>
+</UserControl>
