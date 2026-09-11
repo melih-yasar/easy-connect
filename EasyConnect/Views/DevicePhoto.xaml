@@ -1,0 +1,14 @@
+<UserControl x:Class="EasyConnect.Views.DevicePhoto" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Focusable="False">
+    <Grid ToolTip="Windows device artwork or your chosen photo. Windows may provide a generic icon.">
+        <Image x:Name="Photo" Source="{Binding ImageBytes, Converter={StaticResource DeviceImage}}" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" AutomationProperties.Name="{Binding DeviceName}" />
+        <Viewbox Margin="8">
+            <Viewbox.Style>
+                <Style TargetType="Viewbox">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers><DataTrigger Binding="{Binding Source, ElementName=Photo}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible" /></DataTrigger></Style.Triggers>
+                </Style>
+            </Viewbox.Style>
+            <TextBlock Text="{Binding Category, Converter={StaticResource DeviceIcon}}" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="36" />
+        </Viewbox>
+    </Grid>
+</UserControl>

@@ -48,7 +48,8 @@ internal static class BluetoothAudioControl
                     if (!Supports(control, 0) || !Supports(control, 1)) continue;
                     result[container.Value] = result.GetValueOrDefault(container.Value, []).Append(adapterId).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
                 }
-                catch (COMException) { /* Not every audio driver exposes Bluetooth controls. */ }
+                catch (Exception exception) when (exception is not OperationCanceledException)
+                { /* Not every driver exposes controls; disconnected adapters may have no active path. */ }
                 finally
                 {
                     Release(controlObject); Release(adapter); Release(connector);
@@ -82,7 +83,7 @@ internal static class BluetoothAudioControl
                     // A successful request means an attempt, not a confirmed connection change.
                     if (((IKsControl)controlObject).KsProperty(ref property, 24, IntPtr.Zero, 0, out _) >= 0) accepted++;
                 }
-                catch (COMException) { }
+                catch (Exception exception) when (exception is not OperationCanceledException) { }
                 finally { Release(controlObject); Release(adapter); }
             }
         }
@@ -116,7 +117,7 @@ internal static class BluetoothAudioControl
         [PreserveSig] int GetDefaultAudioEndpoint(int flow, int role, out IMMDevice device);
         [PreserveSig] int GetDevice([MarshalAs(UnmanagedType.LPWStr)] string id, out IMMDevice device);
     }
-    [ComImport, Guid("0BD7A1BE-7A1A-44DB-8397-C0A0B4EBD17A"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    [ComImport, Guid("0BD7A1BE-7A1A-44DB-8397-CC5392387B5E"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     private interface IMMDeviceCollection
     {
         [PreserveSig] int GetCount(out uint count);

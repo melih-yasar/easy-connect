@@ -27,13 +27,15 @@ public sealed partial class BluetoothService
     public async Task<string> SetConnectionAsync(BluetoothDeviceInfo device, bool connect, CancellationToken cancellationToken)
     {
         if (!device.CanControlConnection) throw new NotSupportedException("Use Windows Bluetooth Settings to manage this device's connection.");
-        await _connectionGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        if (!await _connectionGate.WaitAsync(TimeSpan.FromSeconds(1), cancellationToken).ConfigureAwait(false))
+            throw new InvalidOperationException("The previous audio request is still pending. Wait a moment and refresh before trying again.");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromSeconds(15));
+        var requestToken = timeout.Token;
         // Keep the gate until the synchronous driver request actually returns, even after a UI timeout.
         var work = Task.Run(() =>
         {
-            try { return BluetoothAudioControl.Request(device.ConnectionTargetIds, connect, timeout.Token); }
+            try { return BluetoothAudioControl.Request(device.ConnectionTargetIds, connect, requestToken); }
             finally { _connectionGate.Release(); }
         });
         int accepted;
@@ -62,7 +64,7 @@ public sealed partial class BluetoothService
                     devices[index] = devices[index] with { ConnectionTargetIds = ids };
         }
         catch (OperationCanceledException) when (token.IsCancellationRequested) { throw; }
-        catch (Exception exception) { Trace.TraceWarning($"Audio controls unavailable: {exception.GetType().Name}"); }
+        catch (Exception exception) { Trace.TraceWarning($"Audio controls unavailable: {exception}"); }
         await LoadImagesAsync(devices, token).ConfigureAwait(false);
     }
 

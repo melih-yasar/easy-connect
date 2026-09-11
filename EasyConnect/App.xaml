@@ -11,6 +11,8 @@
             <helpers:BatteryTextConverter x:Key="BatteryText" />
             <helpers:ConnectionTextConverter x:Key="ConnectionText" />
             <helpers:DeviceIconConverter x:Key="DeviceIcon" />
+            <helpers:DeviceImageConverter x:Key="DeviceImage" />
+            <helpers:DeviceActionTextConverter x:Key="DeviceActionText" />
             <Style TargetType="TextBlock">
                 <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
             </Style>
@@ -61,6 +63,12 @@
                 </Setter>
             </Style>
             <Style x:Key="RefreshButton" TargetType="Button">
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="ContentTemplate">
+                    <Setter.Value>
+                        <DataTemplate><TextBlock Text="{Binding}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" /></DataTemplate>
+                    </Setter.Value>
+                </Setter>
                 <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
                 <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" />
                 <Setter Property="Padding" Value="20,12" />
@@ -71,13 +79,13 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="ButtonBorder" Background="{TemplateBinding Background}"
-                                    CornerRadius="24" Padding="{TemplateBinding Padding}"
-                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1">
+                                    CornerRadius="9" Padding="{TemplateBinding Padding}"
+                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="ButtonBorder" Property="Background" Value="{DynamicResource AccentHoverBrush}" />
+                                    <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.85" />
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
                                     <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.8" />
@@ -90,6 +98,32 @@
                                     <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.5" />
                                     <Setter Property="Cursor" Value="Arrow" />
                                 </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="QuietButton" TargetType="Button" BasedOn="{StaticResource RefreshButton}">
+                <Setter Property="Background" Value="{DynamicResource IconBackgroundBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="FontWeight" Value="Normal" />
+                <Setter Property="Padding" Value="14,9" />
+                <Setter Property="FontSize" Value="13" />
+            </Style>
+            <Style x:Key="DeviceListItem" TargetType="ListBoxItem">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                <Setter Property="Padding" Value="14" />
+                <Setter Property="Margin" Value="0,0,4,6" />
+                <Setter Property="AutomationProperties.Name" Value="{Binding DeviceName}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <Border x:Name="Row" CornerRadius="12" Background="Transparent" BorderBrush="Transparent" BorderThickness="1" Padding="{TemplateBinding Padding}"><ContentPresenter /></Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="Background" Value="{DynamicResource IconBackgroundBrush}" /></Trigger>
+                                <Trigger Property="IsSelected" Value="True"><Setter TargetName="Row" Property="Background" Value="{DynamicResource AccentSoftBrush}" /></Trigger>
+                                <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Row" Property="BorderBrush" Value="{DynamicResource AccentBrush}" /></Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>

@@ -217,8 +217,8 @@ public sealed partial class BluetoothService : IBluetoothService, IDeviceActions
         {
             ConnectionStatus = status,
             BatteryPercentage = preferred.BatteryPercentage ?? other.BatteryPercentage,
-            Category = preferred.Category ?? other.Category
-            ,PnpContainerId = preferred.PnpContainerId ?? other.PnpContainerId
+            Category = preferred.Category ?? other.Category,
+            PnpContainerId = preferred.PnpContainerId ?? other.PnpContainerId
         };
     }
 
