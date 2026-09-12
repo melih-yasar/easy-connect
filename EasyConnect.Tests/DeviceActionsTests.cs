@@ -119,6 +119,7 @@ public sealed class DeviceActionsTests
         public Task<BluetoothScanResult> GetPairedDevicesAsync(CancellationToken cancellationToken = default) => Task.FromResult(Paired);
         public Task<BluetoothScanResult> DiscoverNearbyAsync(CancellationToken token) { DiscoveryCalls++; return Discover(token); }
         public Task<string> SetConnectionAsync(BluetoothDeviceInfo device, bool connect, CancellationToken token) { ConnectionCalls++; RequestedConnect = connect; return Task.FromResult("Request sent."); }
+        public Task<string> PairAsync(BluetoothDeviceInfo device, CancellationToken token) => Task.FromResult("Pairing requested.");
         public Task OpenBluetoothSettingsAsync() { SettingsCalls++; return Task.CompletedTask; }
         public Task<byte[]?> ChooseImageAsync(BluetoothDeviceInfo device) => Task.FromResult(Image);
     }

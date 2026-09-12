@@ -12,7 +12,7 @@ public sealed partial class BluetoothService : IBluetoothService, IDeviceActions
 
     private static readonly string[] EndpointProperties =
     [
-        IsConnected, AepContainerId, AepCategory, BatteryLife
+        IsConnected, AepContainerId, AepCategory, BatteryLife, SignalStrength
     ];
 
     private static readonly string[] NodeProperties = [AepId, ContainerId, BatteryLife];
@@ -98,7 +98,10 @@ public sealed partial class BluetoothService : IBluetoothService, IDeviceActions
             device.Id,
             status,
             ReadBattery(Get(properties, BatteryLife)),
-            ReadCategory(Get(properties, AepCategory))), identities);
+            ReadCategory(Get(properties, AepCategory)))
+        {
+            SignalStrength = ReadSignalStrength(Get(properties, SignalStrength))
+        }, identities);
     }
 
     private static async Task EnrichAsync(
@@ -218,6 +221,7 @@ public sealed partial class BluetoothService : IBluetoothService, IDeviceActions
             ConnectionStatus = status,
             BatteryPercentage = preferred.BatteryPercentage ?? other.BatteryPercentage,
             Category = preferred.Category ?? other.Category,
+            SignalStrength = preferred.SignalStrength ?? other.SignalStrength,
             PnpContainerId = preferred.PnpContainerId ?? other.PnpContainerId
         };
     }

@@ -45,6 +45,40 @@ public sealed partial class BluetoothService
         return connect ? "Connection requested. The status below is reported by Windows." : "Disconnection requested. The status below is reported by Windows.";
     }
 
+    public async Task<string> PairAsync(BluetoothDeviceInfo device, CancellationToken cancellationToken)
+    {
+        if (device.IsPaired)
+        {
+            return "This device is already paired.";
+        }
+
+        try
+        {
+            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            timeout.CancelAfter(TimeSpan.FromSeconds(30));
+            var info = await DeviceInformation.CreateFromIdAsync(
+                device.DeviceId, EndpointProperties, DeviceInformationKind.AssociationEndpoint)
+                .AsTask(timeout.Token).ConfigureAwait(false);
+            if (!info.Pairing.CanPair)
+            {
+                await OpenBluetoothSettingsAsync().ConfigureAwait(false);
+                return "Windows requires pairing from Bluetooth Settings for this device.";
+            }
+
+            // PairAsync may still show Windows-owned UI for PINs or confirmation.
+            var result = await info.Pairing.PairAsync().AsTask(timeout.Token).ConfigureAwait(false);
+            return result.Status is DevicePairingResultStatus.Paired or DevicePairingResultStatus.AlreadyPaired
+                ? "Pairing requested. Refreshing your devices."
+                : $"Windows could not pair this device ({result.Status}). Try Bluetooth Settings.";
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+        catch (Exception)
+        {
+            await OpenBluetoothSettingsAsync().ConfigureAwait(false);
+            return "Pairing is handled by Windows for this device. Complete it there, then refresh.";
+        }
+    }
+
     public Task OpenBluetoothSettingsAsync()
     {
         Process.Start(new ProcessStartInfo("ms-settings:bluetooth") { UseShellExecute = true });
@@ -73,7 +107,7 @@ public sealed partial class BluetoothService
         await Parallel.ForEachAsync(Enumerable.Range(0, devices.Length), new ParallelOptions { MaxDegreeOfParallelism = 4, CancellationToken = token }, async (index, ct) =>
         {
             var device = devices[index];
-            var bytes = await _images.ReadAsync(device.ImageKey, ct).ConfigureAwait(false);
+            byte[]? bytes = null;
             if (bytes is null && device.PnpContainerId is { } container)
                 bytes = await ReadWindowsImageAsync(container.ToString("B"), DeviceInformationKind.DeviceContainer, ct).ConfigureAwait(false);
             bytes ??= await ReadWindowsImageAsync(device.DeviceId, DeviceInformationKind.AssociationEndpoint, ct).ConfigureAwait(false);

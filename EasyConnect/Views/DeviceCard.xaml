@@ -1,21 +1,48 @@
-<UserControl x:Class="EasyConnect.Views.DeviceCard" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:views="clr-namespace:EasyConnect.Views" xmlns:models="clr-namespace:EasyConnect.Models" Focusable="False">
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:views="clr-namespace:EasyConnect.Views" xmlns:models="clr-namespace:EasyConnect.Models" x:Class="EasyConnect.Views.DeviceCard" Focusable="False">
     <Grid>
-        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /><ColumnDefinition Width="60" /></Grid.ColumnDefinitions>
-        <views:DevicePhoto Width="48" Height="48" Margin="0,0,14,0" />
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <views:DevicePhoto Margin="0,0,12,0">
+            <views:DevicePhoto.Style>
+                <Style TargetType="views:DevicePhoto">
+                    <Setter Property="Width" Value="48"/>
+                    <Setter Property="Height" Value="48"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding DataContext.CompactMode, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                            <Setter Property="Width" Value="32"/>
+                            <Setter Property="Height" Value="32"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </views:DevicePhoto.Style>
+        </views:DevicePhoto>
         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,8,0">
-            <TextBlock Text="{Binding DeviceName}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DeviceName}" />
+            <DockPanel>
+                <TextBlock Text="{Binding IsFavorite, Converter={StaticResource FavoriteGlyph}}" FontFamily="Segoe MDL2 Assets" Visibility="{Binding IsFavorite, Converter={StaticResource BoolToVisibility}}" FontSize="11" Margin="0,0,6,0" Foreground="{DynamicResource AccentBrush}"/>
+                <TextBlock Text="{Binding DisplayName}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DeviceName}"/>
+            </DockPanel>
             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                 <Ellipse Width="5" Height="5" Margin="0,0,6,0">
                     <Ellipse.Style>
                         <Style TargetType="Ellipse">
-                            <Setter Property="Fill" Value="{DynamicResource SecondaryTextBrush}" />
-                            <Style.Triggers><DataTrigger Binding="{Binding ConnectionStatus}" Value="{x:Static models:DeviceConnectionStatus.Connected}"><Setter Property="Fill" Value="{DynamicResource ConnectedBrush}" /></DataTrigger></Style.Triggers>
+                            <Setter Property="Fill" Value="{DynamicResource SecondaryTextBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ConnectionStatus}" Value="{x:Static models:DeviceConnectionStatus.Connected}">
+                                    <Setter Property="Fill" Value="{DynamicResource ConnectedBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
                     </Ellipse.Style>
                 </Ellipse>
-                <TextBlock Text="{Binding ConnectionStatus, Converter={StaticResource ConnectionText}}" Style="{StaticResource SecondaryText}" FontSize="12" />
+                <TextBlock Text="{Binding ConnectionStatus, Converter={StaticResource ConnectionText}}" Style="{StaticResource SecondaryText}" FontSize="12"/>
             </StackPanel>
         </StackPanel>
-        <TextBlock Grid.Column="2" Text="{Binding BatteryPercentage, Converter={StaticResource BatteryText}}" FontSize="14" HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip="Battery last reported by Windows" />
+        <StackPanel Grid.Column="2" VerticalAlignment="Center" ToolTip="Battery last reported by Windows">
+            <TextBlock Text="{Binding BatteryLabel}" MaxWidth="95" TextWrapping="Wrap" FontSize="13" HorizontalAlignment="Right"/>
+            <ProgressBar Visibility="{Binding HasBattery, Converter={StaticResource BoolToVisibility}}" Value="{Binding BatteryPercentage, TargetNullValue=0}" Maximum="100" Width="64" HorizontalAlignment="Right" Height="4" Margin="0,6,0,0" Foreground="{Binding BatteryPercentage, Converter={StaticResource BatteryBrush}}" Background="{DynamicResource IconBackgroundBrush}" BorderThickness="0"/>
+        </StackPanel>
     </Grid>
 </UserControl>

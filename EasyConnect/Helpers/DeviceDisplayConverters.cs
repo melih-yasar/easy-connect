@@ -1,9 +1,12 @@
 using System.Globalization;
 using System.Windows.Data;
+using System.Windows.Media;
 using EasyConnect.Models;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
+using Binding = System.Windows.Data.Binding;
+using MediaColor = System.Windows.Media.Color;
 
 namespace EasyConnect.Helpers;
 
@@ -42,10 +45,28 @@ public sealed class DeviceActionTextConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
 }
 
+public sealed class FavoriteGlyphConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is true ? "\uE735" : "\uE734";
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}
+
 public sealed class BatteryTextConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
         value is int percentage and >= 0 and <= 100 ? $"{percentage}%" : "--";
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}
+
+public sealed class BatteryBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is int percentage and <= 20
+            ? new SolidColorBrush(MediaColor.FromRgb(210, 71, 59))
+            : new SolidColorBrush(MediaColor.FromRgb(22, 116, 71));
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
 }
@@ -77,4 +98,11 @@ public sealed class DeviceIconConverter : IValueConverter
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => Binding.DoNothing;
+}
+
+public sealed class ThemeChoiceConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => value.ToString() == parameter.ToString();
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is true && Enum.TryParse<AppTheme>(parameter.ToString(), out var theme) ? theme : Binding.DoNothing;
 }

@@ -1,121 +1,31 @@
-<Window x:Class="EasyConnect.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:views="clr-namespace:EasyConnect.Views"
-        Title="EasyConnect" Width="1040" Height="840" MinWidth="850" MinHeight="680"
-        WindowStartupLocation="CenterScreen" Background="{DynamicResource BackgroundBrush}"
-        Foreground="{DynamicResource TextBrush}" FontFamily="Segoe UI" FontSize="14"
-        UseLayoutRounding="True" SnapsToDevicePixels="True">
-    <Window.InputBindings><KeyBinding Key="F5" Command="{Binding RefreshCommand}" /></Window.InputBindings>
-    <Grid Margin="32,24,32,20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <DockPanel Margin="0,0,0,26">
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                <Button Command="{Binding RefreshCommand}" Style="{StaticResource QuietButton}" Content="Refresh" Margin="0,0,10,0" ToolTip="Refresh devices (F5)" />
-                <Button Command="{Binding DiscoverCommand}" Style="{StaticResource RefreshButton}" Content="Find nearby" Padding="16,9" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Border Background="{DynamicResource AccentBrush}" CornerRadius="9" Width="30" Height="30" Margin="0,0,10,0">
-                    <TextBlock Text="&#xE702;" Foreground="{DynamicResource OnAccentBrush}" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-                <TextBlock Text="EasyConnect" FontWeight="SemiBold" FontSize="17" VerticalAlignment="Center" />
-            </StackPanel>
-        </DockPanel>
-        <StackPanel Grid.Row="1" Margin="0,0,0,22">
-            <TextBlock Text="Bluetooth" FontSize="34" FontWeight="SemiBold" />
-            <TextBlock Text="{Binding SummaryText}" Style="{StaticResource SecondaryText}" Margin="0,6,0,0" />
-        </StackPanel>
-        <Border Grid.Row="2" CornerRadius="22" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                Padding="24,18" Margin="0,0,0,22" Visibility="{Binding HasSelectedDevice, Converter={StaticResource BoolToVisibility}}">
-            <Grid DataContext="{Binding SelectedDevice}">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="144" /><ColumnDefinition Width="*" /><ColumnDefinition Width="Auto" /></Grid.ColumnDefinitions>
-                <views:DevicePhoto Width="120" Height="120" HorizontalAlignment="Left" />
-                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,20,0">
-                    <TextBlock Text="{Binding ConnectionStatus, Converter={StaticResource ConnectionText}}" Style="{StaticResource SecondaryText}" Margin="0,0,0,5" />
-                    <TextBlock Text="{Binding DeviceName}" FontSize="23" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DeviceName}" />
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <TextBlock Text="{Binding BatteryPercentage, Converter={StaticResource BatteryText}}" FontSize="17" FontWeight="SemiBold" />
-                        <TextBlock Text=" battery" Style="{StaticResource SecondaryText}" VerticalAlignment="Center" Margin="4,0,0,0" />
-                    </StackPanel>
-                </StackPanel>
-                <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                    <Button Content="{Binding Converter={StaticResource DeviceActionText}}" Style="{StaticResource RefreshButton}" Padding="16,9"
-                            Command="{Binding DataContext.DeviceActionCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
-                    <Button Content="Choose photo" Style="{StaticResource QuietButton}" Margin="0,9,0,0"
-                            Command="{Binding DataContext.ChooseImageCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
-                </StackPanel>
-            </Grid>
-        </Border>
-        <StackPanel Grid.Row="3">
-            <Border Background="{DynamicResource NoticeBackgroundBrush}" BorderBrush="{DynamicResource NoticeBorderBrush}" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,0,0,12"
-                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisibility}}"><TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Assertive" /></Border>
-            <Border Background="{DynamicResource NoticeBackgroundBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,0,12"
-                    Visibility="{Binding HasWarning, Converter={StaticResource BoolToVisibility}}"><TextBlock Text="{Binding WarningMessage}" TextWrapping="Wrap" /></Border>
-            <Border Background="{DynamicResource AccentSoftBrush}" CornerRadius="10" Padding="14,10" Margin="0,0,0,12"
-                    Visibility="{Binding HasOperationMessage, Converter={StaticResource BoolToVisibility}}"><TextBlock Text="{Binding OperationMessage}" TextWrapping="Wrap" AutomationProperties.LiveSetting="Polite" /></Border>
-            <ProgressBar IsIndeterminate="{Binding IsLoading}" Height="3" BorderThickness="0" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,12"
-                         Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" AutomationProperties.Name="Refreshing devices" />
-            <TextBlock Text="Updating your device…" Style="{StaticResource SecondaryText}" Margin="0,0,0,12"
-                       Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}" />
-        </StackPanel>
-        <Grid Grid.Row="4">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="1.6*" /><ColumnDefinition Width="22" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-            <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="18" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="14">
-                <Grid>
-                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="*" /></Grid.RowDefinitions>
-                    <TextBlock Text="My devices" FontWeight="SemiBold" FontSize="16" Margin="10,6,0,14" />
-                    <ListBox Grid.Row="1" ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice, Mode=TwoWay}"
-                             Background="Transparent" BorderThickness="0" Padding="0" HorizontalContentAlignment="Stretch"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling"
-                             ItemContainerStyle="{StaticResource DeviceListItem}" AutomationProperties.Name="Paired devices">
-                        <ListBox.ItemTemplate><DataTemplate><views:DeviceCard /></DataTemplate></ListBox.ItemTemplate>
-                    </ListBox>
-                    <StackPanel Grid.Row="1" VerticalAlignment="Center" Margin="20" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibility}}">
-                        <TextBlock Text="Your next connection starts here." FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap" TextAlignment="Center" />
-                        <TextBlock Text="Find a nearby device and pair it in Windows. It will appear here when you refresh." Style="{StaticResource SecondaryText}" TextWrapping="Wrap" TextAlignment="Center" Margin="0,10,0,0" />
-                    </StackPanel>
-                </Grid>
-            </Border>
-            <Border Grid.Column="2" Background="{DynamicResource SurfaceBrush}" CornerRadius="18" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="20">
-                <Grid>
-                    <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /><RowDefinition Height="*" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
-                    <DockPanel Margin="0,0,0,10">
-                        <TextBlock Text="Nearby" FontWeight="SemiBold" FontSize="16" />
-                        <Button Content="Stop" Command="{Binding StopDiscoveryCommand}" Style="{StaticResource QuietButton}" Padding="10,3" HorizontalAlignment="Right" Visibility="{Binding IsDiscovering, Converter={StaticResource BoolToVisibility}}" />
-                    </DockPanel>
-                    <StackPanel Grid.Row="1">
-                        <TextBlock Text="{Binding DiscoveryMessage}" Style="{StaticResource SecondaryText}" TextWrapping="Wrap" Margin="0,0,0,12" AutomationProperties.LiveSetting="Polite" />
-                        <ProgressBar Height="3" IsIndeterminate="{Binding IsDiscovering}" Foreground="{DynamicResource AccentBrush}" BorderThickness="0" Margin="0,0,0,12" Visibility="{Binding IsDiscovering, Converter={StaticResource BoolToVisibility}}" />
-                    </StackPanel>
-                    <ListBox Grid.Row="2" ItemsSource="{Binding NearbyDevices}" Background="Transparent" BorderThickness="0" Padding="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemContainerStyle="{StaticResource DeviceListItem}" AutomationProperties.Name="Nearby devices">
-                        <ListBox.ItemTemplate>
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:views="clr-namespace:EasyConnect.Views" x:Class="EasyConnect.MainWindow" Title="EasyConnect" Width="1120" Height="860" MinWidth="740" MinHeight="540" WindowStartupLocation="CenterScreen" Background="{DynamicResource BackgroundBrush}" Foreground="{DynamicResource TextBrush}" FontFamily="Segoe UI" FontSize="14" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Window.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding RefreshCommand}"/>
+    </Window.InputBindings>
+    <Border Background="{DynamicResource BackgroundBrush}">
+        <ContentControl Content="{Binding}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="ContentTemplate">
+                        <Setter.Value>
                             <DataTemplate>
-                                <StackPanel>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="42" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
-                                        <views:DevicePhoto Width="32" Height="32" />
-                                        <TextBlock Grid.Column="1" Text="{Binding DeviceName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" ToolTip="{Binding DeviceName}" />
-                                    </Grid>
-                                    <Button Content="Pair in Windows" Style="{StaticResource QuietButton}" HorizontalAlignment="Left" Margin="42,8,0,0" Padding="10,6"
-                                            Command="{Binding DataContext.DeviceActionCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding}" />
-                                </StackPanel>
+                                <views:BluetoothPage/>
                             </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                    <TextBlock Grid.Row="3" Text="Only devices in discovery or pairing mode appear here." Style="{StaticResource SecondaryText}" FontSize="11" TextWrapping="Wrap" Margin="0,12,0,0" />
-                </Grid>
-            </Border>
-        </Grid>
-        <DockPanel Grid.Row="5" Margin="0,18,0,0">
-            <Button DockPanel.Dock="Right" Content="Bluetooth Settings" Command="{Binding SettingsCommand}" Style="{StaticResource QuietButton}" Padding="12,7" />
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="{Binding LastUpdatedText}" Style="{StaticResource SecondaryText}" FontSize="11" />
-                <TextBlock Text="-- means battery unavailable. Device information is supplied by Windows." Style="{StaticResource SecondaryText}" FontSize="11" Margin="0,3,12,0" TextWrapping="Wrap" />
-            </StackPanel>
-        </DockPanel>
-    </Grid>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowSettings}" Value="True">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <views:SettingsPage/>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </Border>
 </Window>

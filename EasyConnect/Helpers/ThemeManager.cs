@@ -3,18 +3,20 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using EasyConnect.Models;
 using Windows.UI.ViewManagement;
 
 namespace EasyConnect.Helpers;
 
 public sealed class ThemeManager : IDisposable
 {
-    private readonly Application _application;
+    private readonly System.Windows.Application _application;
     private readonly UISettings? _settings;
     private string? _currentTheme;
+    private AppTheme _requestedTheme = AppTheme.System;
     private bool _disposed;
 
-    public ThemeManager(Application application)
+    public ThemeManager(System.Windows.Application application)
     {
         _application = application;
         try
@@ -29,6 +31,12 @@ public sealed class ThemeManager : IDisposable
         }
 
         SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;
+        ApplyTheme();
+    }
+
+    public void SetTheme(AppTheme theme)
+    {
+        _requestedTheme = theme;
         ApplyTheme();
     }
 
@@ -78,6 +86,9 @@ public sealed class ThemeManager : IDisposable
 
     private string GetColorTheme()
     {
+        if (_requestedTheme == AppTheme.Light) return "Light";
+        if (_requestedTheme == AppTheme.Dark) return "Dark";
+
         try
         {
             if (_settings is not null)

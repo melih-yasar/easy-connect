@@ -9,6 +9,7 @@ internal static class BluetoothDeviceProperties
     internal const string BatteryLife = "System.Devices.BatteryLife";
     internal const string AepCategory = "System.Devices.Aep.Category";
     internal const string Category = "System.Devices.Category";
+    internal const string SignalStrength = "System.Devices.Aep.SignalStrength";
 
     internal static object? Get(IReadOnlyDictionary<string, object> properties, string key) =>
         properties.TryGetValue(key, out var value) ? value : null;
@@ -39,6 +40,19 @@ internal static class BluetoothDeviceProperties
             _ => null
         };
     }
+
+    internal static int? ReadSignalStrength(object? value) => value switch
+    {
+        sbyte number => number,
+        short number => number,
+        int number => number,
+        long number when number is >= int.MinValue and <= int.MaxValue => (int)number,
+        byte number => number,
+        ushort number => number,
+        uint number when number <= int.MaxValue => (int)number,
+        ulong number when number <= int.MaxValue => (int)number,
+        _ => null
+    };
 
     internal static string? ReadCategory(object? value) => value switch
     {

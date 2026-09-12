@@ -26,7 +26,7 @@ public sealed class DeviceImageStore
 
     public async Task<byte[]?> ChooseAsync(BluetoothDeviceInfo device)
     {
-        var picker = new OpenFileDialog
+        var picker = new Microsoft.Win32.OpenFileDialog
         {
             Title = $"Choose a photo for {device.DeviceName}",
             Filter = "Device images|*.png;*.jpg;*.jpeg;*.bmp", CheckFileExists = true
